@@ -26,18 +26,18 @@ class Player(pygame.sprite.Sprite):
 
 	def player_input(self):
 		keys = pygame.key.get_pressed()
-		if keys[pygame.K_SPACE] and self.rect.bottom >= 623:
+		if keys[pygame.K_SPACE] and self.rect.bottom >= 640:
 			self.gravity = -16
 			self.jump_sound.play()
 
 	def apply_gravity(self):
-		self.gravity += 1.2
+		self.gravity += 1.3
 		self.rect.y += self.gravity
-		if self.rect.bottom >= 623:
-			self.rect.bottom = 623
+		if self.rect.bottom >= 640:
+			self.rect.bottom = 640
 
 	def animation_state(self):
-		if self.rect.bottom < 623: 
+		if self.rect.bottom < 640: 
 			self.image = self.player_jump
 		else:
 			self.player_index += 0.1
@@ -54,33 +54,32 @@ class Obstacle(pygame.sprite.Sprite):
 		super().__init__()
 		
 		if type == 'fly':
-			fly_1 = pygame.image.load('graphics/Fly/ghost-1.png').convert_alpha()
-			fly_2 = pygame.image.load('graphics/Fly/ghost-2.png').convert_alpha()
-			fly_3 = pygame.image.load('graphics/Fly/ghost-3.png').convert_alpha()
-			fly_4 = pygame.image.load('graphics/Fly/ghost-4.png').convert_alpha()
-			self.frames = [fly_1,fly_2,fly_3,fly_4]
-			y_pos = 550
+			bee1 = pygame.image.load('graphics/aseprite/bee1.png').convert_alpha()
+			bee2 = pygame.image.load('graphics/aseprite/bee2.png').convert_alpha()
+			self.frames = [bee1,bee2]
+			y_pos = 560
 		else:
-			Hound1 = pygame.image.load('graphics/Hound/hell-gato-1.png').convert_alpha()
-			Hound2 = pygame.image.load('graphics/Hound/hell-gato-2.png').convert_alpha()
-			Hound3 = pygame.image.load('graphics/Hound/hell-gato-3.png').convert_alpha()
-			Hound4 = pygame.image.load('graphics/Hound/hell-gato-4.png').convert_alpha()
-			self.frames = [Hound1,Hound2,Hound3,Hound4]
-			y_pos  = 623
+			k1 = pygame.image.load('graphics/aseprite/knight1.png').convert_alpha()
+			k2 = pygame.image.load('graphics/aseprite/knight2.png').convert_alpha()
+			k3 = pygame.image.load('graphics/aseprite/knight3.png').convert_alpha()
+			k4 = pygame.image.load('graphics/aseprite/knight4.png').convert_alpha()
+			k5 = pygame.image.load('graphics/aseprite/knight5.png').convert_alpha()
+			k6 = pygame.image.load('graphics/aseprite/knight6.png').convert_alpha()
+			self.frames = [k1,k2,k3,k4,k5,k6]
+			y_pos  = 640
 
 		self.animation_index = 0
 		self.image = self.frames[self.animation_index]
 		self.rect = self.image.get_rect(midbottom = (randint(900,1100),y_pos))
 
 	def animation_state(self):
-		self.animation_index += 0.1 
+		self.animation_index += 0.1
 		if self.animation_index >= len(self.frames): self.animation_index = 0
 		self.image = self.frames[int(self.animation_index)]
 
 	def update(self):
-		speed = int(pygame.time.get_ticks() / 1000) - start_time
 		self.animation_state()
-		self.rect.x -= speed
+		self.rect.x -= 15
 		self.destroy()
 
 	def destroy(self):
@@ -89,58 +88,34 @@ class Obstacle(pygame.sprite.Sprite):
 
 
 
-def display_score():
-	current_time = int(pygame.time.get_ticks() / 1000) - start_time
-	score_surf = test_font.render(f'Tempo: {current_time}',False,(64,64,64))
-	score_rect = score_surf.get_rect(center = ((464,50)))
-	screen.blit(score_surf,score_rect)
-	return current_time
-
-def Victory():
-	if display_score() == 30:
-		bg_music.stop()
-		victory_music = pygame.mixer.Sound('audio/music.wav')
-		victory_music.play(loops = -1)
-		return False
-	else: return True
-
 def collision_sprite():
 	if pygame.sprite.spritecollide(player.sprite,obstacle_group,False):
 		obstacle_group.empty()
 		return False
 	else: return True
 
-
-class ParallaxBackground:
-    def __init__(self, screen_size, layers):
-        self.screen_size = screen_size
-        self.layers = layers  # List of tuples: (image_path, speed)
-
-        self.images = []
-        for layer in self.layers:
-            image = pygame.image.load(layer[0]).convert_alpha()
-            image = pygame.transform.scale(image, screen_size)
-            self.images.append(image)
-
-        self.num_layers = len(self.layers)
-        self.layer_positions = [0] * self.num_layers
-
-    def update(self):
-        for i in range(self.num_layers):
-            self.layer_positions[i] -= self.layers[i][1]
-            if self.layer_positions[i] < -self.screen_size[0]:
-                self.layer_positions[i] = 0
-
-    def draw(self, screen):
-        for i in range(self.num_layers):
-            screen.blit(self.images[i], (self.layer_positions[i], 0))
-            screen.blit(self.images[i], (self.layer_positions[i] + self.screen_size[0], 0))
+class ParallaxLayer:
+	def __init__(self,image,speed):
+		self.image = pygame.image.load(image).convert_alpha()
+		self.speed = speed
+		self.image = pygame.transform.scale(pygame.image.load(image).convert_alpha(),(928,678))
+		self.position = 0
+	
+	def update(self):
+		self.position -= self.speed
+		if self.position < - 928:
+			self.position = 0
+	
+	def draw(self,surface):
+		surface.blit(self.image, (self.position, 0))
+		surface.blit(self.image, (self.position + 928, 0))
+	
 
 pygame.init()
 screen = pygame.display.set_mode((928,678))
-pygame.display.set_caption('Arturo decide andar na floresta - The Game')
+pygame.display.set_caption('Arturovania')
 clock = pygame.time.Clock()
-test_font = pygame.font.Font('font/somepx.ttf', 50)
+test_font = pygame.font.Font('font/upheaval.ttf', 35)
 game_active = False
 start_time = 0
 score = 0
@@ -155,29 +130,32 @@ player.add(Player())
 obstacle_group = pygame.sprite.Group()
 
 layers = [
-	("graphics/Layers/layer12.png", 1),
-    ("graphics/Layers/layer10.png", 2),
-    ("graphics/Layers/layer7.png", 3),
-    ("graphics/Layers/layer4.png", 4),
-    ("graphics/Layers/layer2.png", 4),
-    ("graphics/Layers/layer3.png", 4),
-    ("graphics/Layers/layer1.png", 4)
+	("graphics/aseprite/layer1.png",0),
+	("graphics/aseprite/layer2new.png",1),
+	("graphics/aseprite/layer3new.png",2),
+	("graphics/aseprite/layer4new.png",3),
+	("graphics/aseprite/terrain.png",3),
+
 ]
 
-background = ParallaxBackground((928,678), layers)
 
-game_name = test_font.render('Arturo decide andar na floresta - The Game',False,(144,238,144))
+background = [ParallaxLayer(image,speed) for image,speed in layers]
+
+game_name = test_font.render('Arturovania',False,(144,238,144))
 game_name_rect = game_name.get_rect(center = (464,139))
 
-game_message = test_font.render('Sobreviva por 30 segundos!',False,(144,238,144))
+game_message = test_font.render('Atinja sua pontuação máxima!',False,(144,238,144))
 game_message_rect = game_message.get_rect(center = (464,360))
 
-game_message2 = test_font.render('Sobreviveu!',False,(144,238,144))
+game_message2 = test_font.render('Morreu!',False,(144,238,144))
 game_message2_rect = game_message2.get_rect(center = (464,360))
+
+game_message3 = test_font.render('Sobreviveu!',False,(144,238,144))
+game_message3_rect = game_message2.get_rect(center = (464,360))
 
 # Timer 
 obstacle_timer = pygame.USEREVENT + 1
-pygame.time.set_timer(obstacle_timer,1500)
+pygame.time.set_timer(obstacle_timer,500)
 
 while True:
 	for event in pygame.event.get():
@@ -187,29 +165,41 @@ while True:
 
 		if game_active:
 			if event.type == obstacle_timer:
-				obstacle_group.add(Obstacle(choice(['fly','snail'])))
+				obstacle_group.add(Obstacle(choice(['fly','hound'])))
 		
 		else:
 			if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
 				game_active = True
 				start_time = int(pygame.time.get_ticks() / 1000)
+				obstacle_group.empty()
 
 
 	if game_active:
 
-		score = display_score()
-
-		background.update()
-		background.draw(screen)
+		#background.draw(screen)
+		#background.update()
+		for layers in background:
+			layers.update()
+			layers.draw(screen)
 
 		player.draw(screen)
 		player.update()
-		obstacle_group.update()
-		obstacle_group.draw(screen)
 
-		game_active = Victory()
-		if game_active == True:
+		obstacle_group.draw(screen)
+		obstacle_group.update()
+
+		current_time = int(pygame.time.get_ticks() / 1000) - start_time
+		score_surf = test_font.render(f'Tempo: {current_time}',1,(64,64,64))
+		score_rect = score_surf.get_rect(center = ((464,50)))
+		screen.blit(score_surf,score_rect)
+
+		score = current_time
+		if score == 30:
+			game_active = False
+
+		if game_active:
 			game_active = collision_sprite()
+
 		
 		
 	else:
@@ -219,15 +209,12 @@ while True:
 			screen.blit(game_name,game_name_rect)
 			screen.blit(game_message,game_message_rect)
 		elif score == 30:
-			game_message = test_font.render(f'YOU WIN',False,(144,248,144))
-			game_message_rect = game_message.get_rect(center = (464,360))
-			screen.blit(game_message2,game_message2_rect)
+			screen.fill((255,255,255))
+			screen.blit(game_message3,game_message3_rect)
 		else:
 			screen.fill((0,0,0))
-			bg_music.stop()
-			game_message = test_font.render(f'YOU DIED',False,(255,0,0))
-			game_message_rect = game_message.get_rect(center = (464,360))
-			screen.blit(game_message,game_message_rect)
+			screen.blit(game_message2,game_message2_rect)
+
 
 	pygame.display.update()
 	clock.tick(60)
