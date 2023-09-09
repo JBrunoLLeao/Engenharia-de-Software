@@ -2,7 +2,36 @@ import pygame
 from sys import exit
 from random import randint, choice
 
+'''class IntroEnter(pygame.sprite.Sprite)
+	def __init___(self):
+		super().__init__()
+		game_enter = pygame.image.load('graphics/Intro/enter.png')
+		game_enter_zoom = pygame.transform.rotozoom(game_enter,0,2)
+		game_enter_position = game_enter_zoom.get_rect(center = (510,380))'''
 
+
+
+class IntroPlayer(pygame.sprite.Sprite):
+	def __init__(self):
+		super().__init__()
+		player_idle_1 = pygame.image.load('graphics/Intro/hat-man-idle-1.png').convert_alpha()
+		player_idle_2 = pygame.image.load('graphics/Intro/hat-man-idle-2.png').convert_alpha()
+		player_idle_3 = pygame.image.load('graphics/Intro/hat-man-idle-3.png').convert_alpha()
+		player_idle_4 = pygame.image.load('graphics/Intro/hat-man-idle-4.png').convert_alpha()
+		player_stand_1 = pygame.transform.rotozoom(player_idle_1,0,2)
+		player_stand_2 = pygame.transform.rotozoom(player_idle_2,0,2)
+		player_stand_3 = pygame.transform.rotozoom(player_idle_3,0,2)
+		player_stand_4 = pygame.transform.rotozoom(player_idle_4,0,2)
+		self.player_idle = [player_stand_1, player_stand_2, player_stand_3, player_stand_4]
+		self.player_index = 0
+
+		self.image = self.player_idle[self.player_index]
+		self.rect = self.image.get_rect(midbottom = (464,340))
+
+	def update(self):
+		self.player_index += 0.12
+		if self.player_index >= len(self.player_idle):self.player_index = 0
+		self.image = self.player_idle[int(self.player_index)]
 
 class Player(pygame.sprite.Sprite):
 	def __init__(self):
@@ -113,7 +142,7 @@ class ParallaxLayer:
 
 pygame.init()
 screen = pygame.display.set_mode((928,678))
-pygame.display.set_caption('Arturovania')
+pygame.display.set_caption('Arturo Jones')
 clock = pygame.time.Clock()
 test_font = pygame.font.Font('font/upheaval.ttf', 35)
 game_active = False
@@ -141,10 +170,10 @@ layers = [
 
 background = [ParallaxLayer(image,speed) for image,speed in layers]
 
-game_name = test_font.render('Arturovania',False,(144,238,144))
-game_name_rect = game_name.get_rect(center = (464,139))
+game_intro = pygame.transform.scale(pygame.image.load('graphics/aseprite/Intro.png').convert_alpha(),(928,678))
+game_intro_position = game_intro.get_rect(center = (464,339))
 
-game_message = test_font.render('Atinja sua pontuação máxima!',False,(144,238,144))
+game_message = test_font.render('Sobreviva por 30 segundos!',False,(0,0,0))
 game_message_rect = game_message.get_rect(center = (464,360))
 
 game_message2 = test_font.render('Morreu!',False,(144,238,144))
@@ -153,15 +182,27 @@ game_message2_rect = game_message2.get_rect(center = (464,360))
 game_message3 = test_font.render('Sobreviveu!',False,(144,238,144))
 game_message3_rect = game_message2.get_rect(center = (464,360))
 
+game_enter = pygame.image.load('graphics/Intro/enter.png')
+game_enter_zoom = pygame.transform.rotozoom(game_enter,0,2)
+game_enter_position = game_enter_zoom.get_rect(center = (510,380))
+
+player2 = pygame.sprite.GroupSingle()
+player2.add(IntroPlayer())
+
 # Timer 
 obstacle_timer = pygame.USEREVENT + 1
 pygame.time.set_timer(obstacle_timer,500)
+
+font_fade = pygame.USEREVENT + 1
+show_text = True
 
 while True:
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			pygame.quit()
 			exit()
+		if event.type == font_fade:
+			show_text = not show_text
 
 		if game_active:
 			if event.type == obstacle_timer:
@@ -176,8 +217,6 @@ while True:
 
 	if game_active:
 
-		#background.draw(screen)
-		#background.update()
 		for layers in background:
 			layers.update()
 			layers.draw(screen)
@@ -206,8 +245,13 @@ while True:
 
 		screen.fill((255,255,255))
 		if score == 0:
-			screen.blit(game_name,game_name_rect)
-			screen.blit(game_message,game_message_rect)
+			screen.blit(game_intro,game_intro_position)
+			if show_text:
+				screen.blit(game_enter,game_enter_position)
+			player2.draw(screen)
+			player2.update()
+			pygame.display.flip()
+
 		elif score == 30:
 			screen.fill((255,255,255))
 			screen.blit(game_message3,game_message3_rect)
