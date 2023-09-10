@@ -2,14 +2,45 @@ import pygame
 from sys import exit
 from random import randint, choice
 
-'''class IntroEnter(pygame.sprite.Sprite)
-	def __init___(self):
+class WinPlayer(pygame.sprite.Sprite):
+	def __init__(self):
 		super().__init__()
-		game_enter = pygame.image.load('graphics/Intro/enter.png')
-		game_enter_zoom = pygame.transform.rotozoom(game_enter,0,2)
-		game_enter_position = game_enter_zoom.get_rect(center = (510,380))'''
+		player_win_1 = pygame.image.load('graphics/aseprite/medal1.png').convert_alpha()
+		player_win_2 = pygame.image.load('graphics/aseprite/medal2.png').convert_alpha()
+		player_win_3 = pygame.image.load('graphics/aseprite/medal3.png').convert_alpha()
+		player_win_4 = pygame.image.load('graphics/aseprite/medal4.png').convert_alpha()
+		player_winscreen_1 = pygame.transform.scale(player_win_1,(200,200))
+		player_winscreen_2 = pygame.transform.scale(player_win_2,(200,200))
+		player_winscreen_3 = pygame.transform.scale(player_win_3,(200,200))
+		player_winscreen_4 = pygame.transform.scale(player_win_4,(200,200))
+		self.player_win = [player_winscreen_1, player_winscreen_2, player_winscreen_3, player_winscreen_4]
+		self.player_index = 0
 
+		self.image = self.player_win[self.player_index]
+		self.rect = self.image.get_rect(midbottom = (464,300))
 
+	def update(self):
+		self.player_index += 0.12
+		if self.player_index >= len(self.player_win):self.player_index = 0
+		self.image = self.player_win[int(self.player_index)]
+
+class DeathPlayer(pygame.sprite.Sprite):
+	def __init__(self):
+		super().__init__()
+		player_death_1 = pygame.image.load('graphics/aseprite/death-1.png').convert_alpha()
+		player_death_2 = pygame.image.load('graphics/aseprite/death-2.png').convert_alpha()
+		player_deathscreen_1 = pygame.transform.scale(player_death_1,(200,200))
+		player_deathscreen_2 = pygame.transform.scale(player_death_2,(200,200))
+		self.player_death = [player_deathscreen_1, player_deathscreen_2]
+		self.player_index = 0
+
+		self.image = self.player_death[self.player_index]
+		self.rect = self.image.get_rect(midbottom = (464,300))
+
+	def update(self):
+		self.player_index += 0.12
+		if self.player_index >= len(self.player_death):self.player_index = 0
+		self.image = self.player_death[int(self.player_index)]
 
 class IntroPlayer(pygame.sprite.Sprite):
 	def __init__(self):
@@ -148,15 +179,30 @@ test_font = pygame.font.Font('font/upheaval.ttf', 35)
 game_active = False
 start_time = 0
 score = 0
+
+#Music
 bg_music = pygame.mixer.Sound('audio/music2.mp3')
-bg_music.play(loops = -1)
+bg_music.play()
+
+bg_music_death = pygame.mixer.Sound('audio/darksouls.mp3')
+
 
 
 
 #Groups
 player = pygame.sprite.GroupSingle()
 player.add(Player())
+
 obstacle_group = pygame.sprite.Group()
+
+playerIntro = pygame.sprite.GroupSingle()
+playerIntro.add(IntroPlayer())
+
+playerDeath = pygame.sprite.GroupSingle()
+playerDeath.add(DeathPlayer())
+
+playerWin = pygame.sprite.GroupSingle()
+playerWin.add(WinPlayer())
 
 layers = [
 	("graphics/aseprite/layer1.png",0),
@@ -170,24 +216,24 @@ layers = [
 
 background = [ParallaxLayer(image,speed) for image,speed in layers]
 
+
+#Intro
 game_intro = pygame.transform.scale(pygame.image.load('graphics/aseprite/Intro.png').convert_alpha(),(928,678))
 game_intro_position = game_intro.get_rect(center = (464,339))
 
-game_message = test_font.render('Sobreviva por 30 segundos!',False,(0,0,0))
-game_message_rect = game_message.get_rect(center = (464,360))
+game_death = pygame.transform.scale(pygame.image.load('graphics/aseprite/death.png').convert_alpha(),(928,678))
+game_death_position = game_death.get_rect(center = (464,339))
 
-game_message2 = test_font.render('Morreu!',False,(144,238,144))
-game_message2_rect = game_message2.get_rect(center = (464,360))
-
-game_message3 = test_font.render('Sobreviveu!',False,(144,238,144))
-game_message3_rect = game_message2.get_rect(center = (464,360))
+game_survive = pygame.transform.scale(pygame.image.load('graphics/aseprite/death.png').convert_alpha(),(928,678))
+game_survive_position = game_death.get_rect(center = (464,339))
 
 game_enter = pygame.image.load('graphics/Intro/enter.png')
 game_enter_zoom = pygame.transform.rotozoom(game_enter,0,2)
 game_enter_position = game_enter_zoom.get_rect(center = (510,380))
 
-player2 = pygame.sprite.GroupSingle()
-player2.add(IntroPlayer())
+
+
+
 
 # Timer 
 obstacle_timer = pygame.USEREVENT + 1
@@ -242,22 +288,27 @@ while True:
 		
 		
 	else:
-
-		screen.fill((255,255,255))
 		if score == 0:
 			screen.blit(game_intro,game_intro_position)
 			if show_text:
 				screen.blit(game_enter,game_enter_position)
-			player2.draw(screen)
-			player2.update()
+			playerIntro.draw(screen)
+			playerIntro.update()
 			pygame.display.flip()
 
 		elif score == 30:
-			screen.fill((255,255,255))
-			screen.blit(game_message3,game_message3_rect)
+			screen.fill((245,245,220))
+			if show_text:
+				screen.blit(game_enter,game_enter_position)
+			playerWin.draw(screen)
+			playerWin.update()
 		else:
-			screen.fill((0,0,0))
-			screen.blit(game_message2,game_message2_rect)
+			screen.fill((245,245,220))
+			if show_text:
+				screen.blit(game_enter,game_enter_position)
+			playerDeath.draw(screen)
+			playerDeath.update()
+			pygame.display.flip()
 
 
 	pygame.display.update()
