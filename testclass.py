@@ -20,7 +20,7 @@ class WinPlayer(pygame.sprite.Sprite):
 		self.rect = self.image.get_rect(midbottom = (464,300))
 
 	def update(self):
-		self.player_index += 0.12
+		self.player_index += 0.08
 		if self.player_index >= len(self.player_win):self.player_index = 0
 		self.image = self.player_win[int(self.player_index)]
 
@@ -42,6 +42,32 @@ class DeathPlayer(pygame.sprite.Sprite):
 		if self.player_index >= len(self.player_death):self.player_index = 0
 		self.image = self.player_death[int(self.player_index)]
 
+class IntroBackground(pygame.sprite.Sprite):
+	def __init__(self):
+		super().__init__()
+		intro_1 = pygame.transform.scale(pygame.image.load('graphics/aseprite/animatedintro1.png').convert_alpha(),(928,678))
+		intro_2 = pygame.transform.scale(pygame.image.load('graphics/aseprite/animatedintro2.png').convert_alpha(),(928,678))
+		intro_3 = pygame.transform.scale(pygame.image.load('graphics/aseprite/animatedintro3.png').convert_alpha(),(928,678))
+		intro_4 = pygame.transform.scale(pygame.image.load('graphics/aseprite/animatedintro4.png').convert_alpha(),(928,678))
+		intro_5 = pygame.transform.scale(pygame.image.load('graphics/aseprite/animatedintro5.png').convert_alpha(),(928,678))
+		intro_6 = pygame.transform.scale(pygame.image.load('graphics/aseprite/animatedintro6.png').convert_alpha(),(928,678))
+		intro_7 = pygame.transform.scale(pygame.image.load('graphics/aseprite/animatedintro7.png').convert_alpha(),(928,678))
+		intro_8 = pygame.transform.scale(pygame.image.load('graphics/aseprite/animatedintro8.png').convert_alpha(),(928,678))
+		intro_9 = pygame.transform.scale(pygame.image.load('graphics/aseprite/animatedintro9.png').convert_alpha(),(928,678))
+		intro_10 = pygame.transform.scale(pygame.image.load('graphics/aseprite/animatedintro10.png').convert_alpha(),(928,678))
+		self.intro = [intro_1,intro_2,intro_3,intro_4,intro_5,intro_6,intro_7,intro_8,intro_9,intro_10]
+		self.index = 0
+
+		self.image = self.intro[self.index]
+		self.rect = self.image.get_rect(center = (464,340))
+
+	def update(self):
+		self.index += 0.05
+		if self.index >= len(self.intro):
+			self.image = self.intro[9]
+		else:
+			self.image = self.intro[int(self.index)]
+
 class IntroPlayer(pygame.sprite.Sprite):
 	def __init__(self):
 		super().__init__()
@@ -57,7 +83,7 @@ class IntroPlayer(pygame.sprite.Sprite):
 		self.player_index = 0
 
 		self.image = self.player_idle[self.player_index]
-		self.rect = self.image.get_rect(midbottom = (464,340))
+		self.rect = self.image.get_rect(midbottom = (464,500))
 
 	def update(self):
 		self.player_index += 0.12
@@ -175,7 +201,12 @@ pygame.init()
 screen = pygame.display.set_mode((928,678))
 pygame.display.set_caption('Arturo Jones')
 clock = pygame.time.Clock()
+
+#fonts
 test_font = pygame.font.Font('font/upheaval.ttf', 35)
+test_font2 = pygame.font.Font('font/RioGrande.ttf', 72)
+test_font3 = pygame.font.Font('font/WildWestIcons.ttf',72)
+
 game_active = False
 start_time = 0
 score = 0
@@ -204,18 +235,19 @@ playerDeath.add(DeathPlayer())
 playerWin = pygame.sprite.GroupSingle()
 playerWin.add(WinPlayer())
 
+inback = pygame.sprite.GroupSingle()
+inback.add(IntroBackground())
+
 layers = [
 	("graphics/aseprite/layer1.png",0),
 	("graphics/aseprite/layer2new.png",1),
 	("graphics/aseprite/layer3new.png",2),
 	("graphics/aseprite/layer4new.png",3),
-	("graphics/aseprite/terrain.png",3),
+	("graphics/aseprite/terrain.png",3)
 
 ]
 
-
 background = [ParallaxLayer(image,speed) for image,speed in layers]
-
 
 #Intro
 game_intro = pygame.transform.scale(pygame.image.load('graphics/aseprite/Intro.png').convert_alpha(),(928,678))
@@ -289,11 +321,19 @@ while True:
 		
 	else:
 		if score == 0:
-			screen.blit(game_intro,game_intro_position)
+			inback.draw(screen)
+			inback.update()
+			title = test_font2.render(f'Arturo Jones',1,(0,0,0))
+			title_pos = title.get_rect(center = (464,210))
+			title_img = test_font3.render(f'L',1,(0,0,0))
+			title_img_pos = title.get_rect(center = (680,300))
+			screen.blit(title,title_pos)
+			screen.blit(title_img,title_img_pos)
 			if show_text:
 				screen.blit(game_enter,game_enter_position)
-			playerIntro.draw(screen)
-			playerIntro.update()
+			'''playerIntro.draw(screen)
+			playerIntro.update()'''
+
 			pygame.display.flip()
 
 		elif score == 30:
