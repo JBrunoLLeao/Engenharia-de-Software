@@ -215,10 +215,7 @@ score = 0
 bg_music = pygame.mixer.Sound('audio/music2.mp3')
 bg_music.play()
 
-bg_music_death = pygame.mixer.Sound('audio/darksouls.mp3')
-
-
-
+#bg_music_death = pygame.mixer.Sound('audio/darksouls.mp3')
 
 #Groups
 player = pygame.sprite.GroupSingle()
@@ -273,6 +270,12 @@ pygame.time.set_timer(obstacle_timer,500)
 
 font_fade = pygame.USEREVENT + 1
 show_text = True
+
+def reset_game():
+    global game_active, score
+    game_active = False
+    score = 0
+    obstacle_group.empty()
 
 while True:
 	for event in pygame.event.get():
@@ -329,6 +332,7 @@ while True:
 			title_img_pos = title.get_rect(center = (680,300))
 			screen.blit(title,title_pos)
 			screen.blit(title_img,title_img_pos)
+
 			if show_text:
 				screen.blit(game_enter,game_enter_position)
 			'''playerIntro.draw(screen)
@@ -336,19 +340,47 @@ while True:
 
 			pygame.display.flip()
 
-		elif score == 30:
+			"""elif score == 30:
 			screen.fill((245,245,220))
 			if show_text:
 				screen.blit(game_enter,game_enter_position)
 			playerWin.draw(screen)
-			playerWin.update()
+			playerWin.update()"""
 		else:
-			screen.fill((245,245,220))
+			# Código para a tela de derrota (quando o jogador morre)
+
+			# Exibir a tela de morte
+			screen.fill((245, 245, 220))
+			if show_text:
+				screen.blit(game_enter, game_enter_position)
+			playerDeath.draw(screen)
+			playerDeath.update()
+			font = pygame.font.Font('font/upheaval.ttf', 36)
+			text = font.render(f'Você morreu! ', True, (0, 0, 0))
+			text_rect = text.get_rect(center=(475, 455))
+			screen.blit(text, text_rect)
+			text2 = font.render(f'Pontuação: {score}', True, (0, 0, 0))
+			text_rect2 = text.get_rect(center=(475, 500))
+			screen.blit(text2, text_rect2)
+			pygame.display.flip()
+
+			# Aguardar o pressionamento da tecla Enter para retornar à tela inicial
+			waiting_for_restart = True
+			while waiting_for_restart:
+				for event in pygame.event.get():
+					if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+						waiting_for_restart = False
+
+			reset_game()  # Chamando a função para reiniciar o jogo
+
+
+			"""screen.fill((245,245,220))
 			if show_text:
 				screen.blit(game_enter,game_enter_position)
 			playerDeath.draw(screen)
 			playerDeath.update()
 			pygame.display.flip()
+			reset_game()"""
 
 
 	pygame.display.update()
