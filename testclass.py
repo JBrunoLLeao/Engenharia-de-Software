@@ -9,15 +9,15 @@ class WinPlayer(pygame.sprite.Sprite):
 		player_win_2 = pygame.image.load('graphics/aseprite/medal2.png').convert_alpha()
 		player_win_3 = pygame.image.load('graphics/aseprite/medal3.png').convert_alpha()
 		player_win_4 = pygame.image.load('graphics/aseprite/medal4.png').convert_alpha()
-		player_winscreen_1 = pygame.transform.scale(player_win_1,(200,200))
-		player_winscreen_2 = pygame.transform.scale(player_win_2,(200,200))
-		player_winscreen_3 = pygame.transform.scale(player_win_3,(200,200))
-		player_winscreen_4 = pygame.transform.scale(player_win_4,(200,200))
+		player_winscreen_1 = pygame.transform.scale(player_win_1,(100,100))
+		player_winscreen_2 = pygame.transform.scale(player_win_2,(100,100))
+		player_winscreen_3 = pygame.transform.scale(player_win_3,(100,100))
+		player_winscreen_4 = pygame.transform.scale(player_win_4,(100,100))
 		self.player_win = [player_winscreen_1, player_winscreen_2, player_winscreen_3, player_winscreen_4]
 		self.player_index = 0
 
 		self.image = self.player_win[self.player_index]
-		self.rect = self.image.get_rect(midbottom = (464,300))
+		self.rect = self.image.get_rect(midbottom = (464,100))
 
 	def update(self):
 		self.player_index += 0.08
@@ -197,6 +197,35 @@ class ParallaxLayer:
 		surface.blit(self.image, (self.position + 928, 0))
 	
 
+leaderboard = [
+
+]
+
+def add_high_score(name, score):
+    leaderboard.append({"name": name, "score": score})
+    leaderboard.sort(key=lambda x: x["score"], reverse=True)
+    #leaderboard.pop()  # Remove the lowest score if the leaderboard exceeds a certain length
+
+
+def get_player_name():
+    player_name = input("Enter your name: ")
+    return player_name
+
+
+def render_leaderboard():
+    # Clear the screen
+    screen.fill((245,245,220))
+    
+    # Display the leaderboard
+    font = pygame.font.Font('font/upheaval.ttf', 35)
+    y = 120
+    for entry in leaderboard:
+        text = f"{entry['name']}: {entry['score']}"
+        text_render = font.render(text, True, (0, 0, 0))
+        screen.blit(text_render, (928 // 2 - text_render.get_width() // 2, y))
+        y += 40
+
+
 pygame.init()
 screen = pygame.display.set_mode((928,678))
 pygame.display.set_caption('Arturo Jones')
@@ -215,7 +244,10 @@ score = 0
 bg_music = pygame.mixer.Sound('audio/music2.mp3')
 bg_music.play()
 
-#bg_music_death = pygame.mixer.Sound('audio/darksouls.mp3')
+bg_music_death = pygame.mixer.Sound('audio/darksouls.mp3')
+
+
+
 
 #Groups
 player = pygame.sprite.GroupSingle()
@@ -266,16 +298,10 @@ game_enter_position = game_enter_zoom.get_rect(center = (510,380))
 
 # Timer 
 obstacle_timer = pygame.USEREVENT + 1
-pygame.time.set_timer(obstacle_timer,500)
+pygame.time.set_timer(obstacle_timer,425)
 
 font_fade = pygame.USEREVENT + 1
 show_text = True
-
-def reset_game():
-    global game_active, score
-    game_active = False
-    score = 0
-    obstacle_group.empty()
 
 while True:
 	for event in pygame.event.get():
@@ -314,11 +340,9 @@ while True:
 		screen.blit(score_surf,score_rect)
 
 		score = current_time
-		if score == 30:
-			game_active = False
-
 		if game_active:
 			game_active = collision_sprite()
+			run = False
 
 		
 		
@@ -332,56 +356,27 @@ while True:
 			title_img_pos = title.get_rect(center = (680,300))
 			screen.blit(title,title_pos)
 			screen.blit(title_img,title_img_pos)
-
 			if show_text:
 				screen.blit(game_enter,game_enter_position)
-			'''playerIntro.draw(screen)
-			playerIntro.update()'''
 
 			pygame.display.flip()
 
-			"""elif score == 30:
-			screen.fill((245,245,220))
-			if show_text:
-				screen.blit(game_enter,game_enter_position)
-			playerWin.draw(screen)
-			playerWin.update()"""
+
 		else:
-			# Código para a tela de derrota (quando o jogador morre)
+			playerWin.draw(screen)
+			playerWin.update()
 
-			# Exibir a tela de morte
-			screen.fill((245, 245, 220))
-			if show_text:
-				screen.blit(game_enter, game_enter_position)
-			playerDeath.draw(screen)
-			playerDeath.update()
-			font = pygame.font.Font('font/upheaval.ttf', 36)
-			text = font.render(f'Você morreu! ', True, (0, 0, 0))
-			text_rect = text.get_rect(center=(475, 455))
-			screen.blit(text, text_rect)
-			text2 = font.render(f'Pontuação: {score}', True, (0, 0, 0))
-			text_rect2 = text.get_rect(center=(475, 500))
-			screen.blit(text2, text_rect2)
-			pygame.display.flip()
+			if run == False:
+				screen.fill((245,245,220))
+				
+				playerDeath.draw(screen)
+				pygame.display.flip()
 
-			# Aguardar o pressionamento da tecla Enter para retornar à tela inicial
-			waiting_for_restart = True
-			while waiting_for_restart:
-				for event in pygame.event.get():
-					if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-						waiting_for_restart = False
-
-			reset_game()  # Chamando a função para reiniciar o jogo
-
-
-			"""screen.fill((245,245,220))
-			if show_text:
-				screen.blit(game_enter,game_enter_position)
-			playerDeath.draw(screen)
-			playerDeath.update()
-			pygame.display.flip()
-			reset_game()"""
-
+				nome = get_player_name()
+				add_high_score(nome,score)
+				render_leaderboard()
+				pygame.display.flip()
+				run = True
 
 	pygame.display.update()
 	clock.tick(60)
