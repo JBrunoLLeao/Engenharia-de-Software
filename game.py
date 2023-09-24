@@ -275,9 +275,8 @@ score = 0
 
 #Music
 bg_music = pygame.mixer.Sound('audio/music2.mp3')
-bg_music.play()
+bg_music.play(loops = -1)
 
-bg_music_death = pygame.mixer.Sound('audio/darksouls.mp3')
 
 
 
