@@ -20,7 +20,7 @@ class WinPlayer(pygame.sprite.Sprite):
 		self.rect = self.image.get_rect(midbottom = (464,100))
 
 	def update(self):
-		self.player_index += 0.08
+		self.player_index += 0.009
 		if self.player_index >= len(self.player_win):self.player_index = 0
 		self.image = self.player_win[int(self.player_index)]
 
@@ -201,6 +201,36 @@ leaderboard = [
 
 ]
 
+class TextBox:
+    def __init__(self, x, y, width, height):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.text = ""
+        self.font = pygame.font.Font(None, 36)
+        self.active = False
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                self.active = not self.active
+            else:
+                self.active = False
+        if event.type == pygame.KEYDOWN:
+            if self.active:
+                if event.key == pygame.K_RETURN:
+                    if self.text != "": add_high_score(self.text,score)
+                    self.text = ""
+                elif event.key == pygame.K_BACKSPACE:
+                    self.text = self.text[:-1]
+                else:
+                    self.text += event.unicode
+
+    def draw(self, screen):
+        text_surface = self.font.render(self.text, True, (0,0,0))
+        width = max(self.rect.width, text_surface.get_width()+10)
+        self.rect.w = width
+        screen.blit(text_surface, (self.rect.x+5, self.rect.y+5))
+        pygame.draw.rect(screen, (0,0,0), self.rect, 2)
+
 def add_high_score(name, score):
     leaderboard.append({"name": name, "score": score})
     leaderboard.sort(key=lambda x: x["score"], reverse=True)
@@ -213,10 +243,7 @@ def get_player_name():
 
 
 def render_leaderboard():
-    # Clear the screen
-    screen.fill((245,245,220))
-    
-    # Display the leaderboard
+
     font = pygame.font.Font('font/upheaval.ttf', 35)
     y = 120
     for entry in leaderboard:
@@ -225,6 +252,12 @@ def render_leaderboard():
         screen.blit(text_render, (928 // 2 - text_render.get_width() // 2, y))
         y += 40
 
+def reset_game():
+    global game_active, score, run
+    game_active = False
+    run = True
+    score = 0
+    obstacle_group.empty()
 
 pygame.init()
 screen = pygame.display.set_mode((928,678))
@@ -303,11 +336,17 @@ pygame.time.set_timer(obstacle_timer,425)
 font_fade = pygame.USEREVENT + 1
 show_text = True
 
+text_box = TextBox(370, 350, 200, 40)
+run = True
+flag = True
+i = 0
+
 while True:
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			pygame.quit()
 			exit()
+		
 		if event.type == font_fade:
 			show_text = not show_text
 
@@ -316,13 +355,14 @@ while True:
 				obstacle_group.add(Obstacle(choice(['fly','hound'])))
 		
 		else:
+			text_box.handle_event(event)
 			if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
 				game_active = True
 				start_time = int(pygame.time.get_ticks() / 1000)
 				obstacle_group.empty()
 
 
-	if game_active:
+	if game_active and run:
 
 		for layers in background:
 			layers.update()
@@ -342,7 +382,10 @@ while True:
 		score = current_time
 		if game_active:
 			game_active = collision_sprite()
-			run = False
+			if (game_active == False): 
+				obstacle_group.empty()
+				flag = False
+				run = False
 
 		
 		
@@ -363,20 +406,32 @@ while True:
 
 
 		else:
-			playerWin.draw(screen)
-			playerWin.update()
-
-			if run == False:
+			if flag == False:
 				screen.fill((245,245,220))
-				
 				playerDeath.draw(screen)
-				pygame.display.flip()
+				playerDeath.update()
+				text_name =  test_font.render(f'Digite seu nome:',1,(0,0,0))
+				text_name_pos = text_name.get_rect(center = (464,320))
+				text_box.draw(screen)
+				screen.blit(text_name, text_name_pos)
+				pygame.display.update()
+				key = pygame.key.get_pressed()
+					
+			
+			if key[pygame.K_RETURN]:
+				waiting_for_restart = True
+				while waiting_for_restart:
+					screen.fill((245,245,220))
+					playerWin.draw(screen)
+					playerWin.update()
+					render_leaderboard()
+					pygame.display.update()
+					for event in pygame.event.get():
+						if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+							waiting_for_restart = False
+				
+				reset_game()
 
-				nome = get_player_name()
-				add_high_score(nome,score)
-				render_leaderboard()
-				pygame.display.flip()
-				run = True
 
 	pygame.display.update()
 	clock.tick(60)
