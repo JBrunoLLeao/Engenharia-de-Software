@@ -17,6 +17,7 @@ class WinPlayer(pygame.sprite.Sprite):
 		self.player_index = 0
 
 		self.image = self.player_win[self.player_index]
+		self.image.set_colorkey((255,255,255), pygame.RLEACCEL)
 		self.rect = self.image.get_rect(midbottom = (464,100))
 
 	def update(self):
@@ -35,6 +36,7 @@ class DeathPlayer(pygame.sprite.Sprite):
 		self.player_index = 0
 
 		self.image = self.player_death[self.player_index]
+		self.image.set_colorkey((255,255,255), pygame.RLEACCEL)
 		self.rect = self.image.get_rect(midbottom = (464,300))
 
 	def update(self):
@@ -59,6 +61,7 @@ class IntroBackground(pygame.sprite.Sprite):
 		self.index = 0
 
 		self.image = self.intro[self.index]
+		self.image.set_colorkey((255,255,255), pygame.RLEACCEL)
 		self.rect = self.image.get_rect(center = (464,340))
 
 	def update(self):
@@ -67,28 +70,6 @@ class IntroBackground(pygame.sprite.Sprite):
 			self.image = self.intro[9]
 		else:
 			self.image = self.intro[int(self.index)]
-
-class IntroPlayer(pygame.sprite.Sprite):
-	def __init__(self):
-		super().__init__()
-		player_idle_1 = pygame.image.load('graphics/Intro/hat-man-idle-1.png').convert_alpha()
-		player_idle_2 = pygame.image.load('graphics/Intro/hat-man-idle-2.png').convert_alpha()
-		player_idle_3 = pygame.image.load('graphics/Intro/hat-man-idle-3.png').convert_alpha()
-		player_idle_4 = pygame.image.load('graphics/Intro/hat-man-idle-4.png').convert_alpha()
-		player_stand_1 = pygame.transform.rotozoom(player_idle_1,0,2)
-		player_stand_2 = pygame.transform.rotozoom(player_idle_2,0,2)
-		player_stand_3 = pygame.transform.rotozoom(player_idle_3,0,2)
-		player_stand_4 = pygame.transform.rotozoom(player_idle_4,0,2)
-		self.player_idle = [player_stand_1, player_stand_2, player_stand_3, player_stand_4]
-		self.player_index = 0
-
-		self.image = self.player_idle[self.player_index]
-		self.rect = self.image.get_rect(midbottom = (464,500))
-
-	def update(self):
-		self.player_index += 0.12
-		if self.player_index >= len(self.player_idle):self.player_index = 0
-		self.image = self.player_idle[int(self.player_index)]
 
 class Player(pygame.sprite.Sprite):
 	def __init__(self):
@@ -104,6 +85,7 @@ class Player(pygame.sprite.Sprite):
 		self.player_jump = pygame.image.load('graphics/player/hat-man-walk-1.png').convert_alpha()
 
 		self.image = self.player_walk[self.player_index]
+		self.image.set_colorkey((255,255,255), pygame.RLEACCEL)
 		self.rect = self.image.get_rect(midbottom = (80,623))
 		self.gravity = 0
 
@@ -156,6 +138,7 @@ class Obstacle(pygame.sprite.Sprite):
 
 		self.animation_index = 0
 		self.image = self.frames[self.animation_index]
+		self.image.set_colorkey((255,255,255), pygame.RLEACCEL)
 		self.rect = self.image.get_rect(midbottom = (randint(900,1100),y_pos))
 
 	def animation_state(self):
@@ -185,6 +168,7 @@ class ParallaxLayer:
 		self.image = pygame.image.load(image).convert_alpha()
 		self.speed = speed
 		self.image = pygame.transform.scale(pygame.image.load(image).convert_alpha(),(928,678))
+		self.image.set_colorkey((255,255,255), pygame.RLEACCEL)
 		self.position = 0
 	
 	def update(self):
@@ -283,9 +267,6 @@ player = pygame.sprite.GroupSingle()
 player.add(Player())
 
 obstacle_group = pygame.sprite.Group()
-
-playerIntro = pygame.sprite.GroupSingle()
-playerIntro.add(IntroPlayer())
 
 playerDeath = pygame.sprite.GroupSingle()
 playerDeath.add(DeathPlayer())
