@@ -278,9 +278,6 @@ bg_music = pygame.mixer.Sound('audio/music2.mp3')
 bg_music.play(loops = -1)
 
 
-
-
-
 #Groups
 player = pygame.sprite.GroupSingle()
 player.add(Player())
@@ -305,21 +302,11 @@ layers = [
 	("graphics/aseprite/layer3new.png",2),
 	("graphics/aseprite/layer4new.png",3),
 	("graphics/aseprite/terrain.png",3)
-
 ]
 
 background = [ParallaxLayer(image,speed) for image,speed in layers]
 
 #Intro
-game_intro = pygame.transform.scale(pygame.image.load('graphics/aseprite/Intro.png').convert_alpha(),(928,678))
-game_intro_position = game_intro.get_rect(center = (464,339))
-
-game_death = pygame.transform.scale(pygame.image.load('graphics/aseprite/death.png').convert_alpha(),(928,678))
-game_death_position = game_death.get_rect(center = (464,339))
-
-game_survive = pygame.transform.scale(pygame.image.load('graphics/aseprite/death.png').convert_alpha(),(928,678))
-game_survive_position = game_death.get_rect(center = (464,339))
-
 game_enter = pygame.image.load('graphics/Intro/enter.png')
 game_enter_zoom = pygame.transform.rotozoom(game_enter,0,2)
 game_enter_position = game_enter_zoom.get_rect(center = (510,380))
@@ -423,7 +410,10 @@ while True:
 					screen.fill((245,245,220))
 					playerWin.draw(screen)
 					playerWin.update()
+					text_name =  test_font.render(f'Aperte espaço para voltar à tela de início',1,(0,0,0))
+					text_name_pos = text_name.get_rect(center = (464,550))
 					render_leaderboard()
+					screen.blit(text_name, text_name_pos)
 					pygame.display.update()
 					for event in pygame.event.get():
 						if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
