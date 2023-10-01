@@ -122,18 +122,28 @@ class Obstacle(pygame.sprite.Sprite):
 		super().__init__()
 		
 		if type == 'fly':
-			bee1 = pygame.image.load('graphics/aseprite/bee1.png').convert_alpha()
-			bee2 = pygame.image.load('graphics/aseprite/bee2.png').convert_alpha()
-			self.frames = [bee1,bee2]
+			bat1 = pygame.image.load('graphics/aseprite/bat1.png').convert_alpha()
+			bat2 = pygame.image.load('graphics/aseprite/bat2.png').convert_alpha()
+			self.frames = [bat1,bat2]
 			y_pos = 560
 		else:
-			k1 = pygame.image.load('graphics/aseprite/knight1.png').convert_alpha()
-			k2 = pygame.image.load('graphics/aseprite/knight2.png').convert_alpha()
-			k3 = pygame.image.load('graphics/aseprite/knight3.png').convert_alpha()
-			k4 = pygame.image.load('graphics/aseprite/knight4.png').convert_alpha()
-			k5 = pygame.image.load('graphics/aseprite/knight5.png').convert_alpha()
-			k6 = pygame.image.load('graphics/aseprite/knight6.png').convert_alpha()
-			self.frames = [k1,k2,k3,k4,k5,k6]
+			w1 = pygame.image.load('graphics/aseprite/k1.png').convert_alpha()
+			w2 = pygame.image.load('graphics/aseprite/k2.png').convert_alpha()
+			w3 = pygame.image.load('graphics/aseprite/k3.png').convert_alpha()
+			w4 = pygame.image.load('graphics/aseprite/k4.png').convert_alpha()
+			w5 = pygame.image.load('graphics/aseprite/k5.png').convert_alpha()
+			w6 = pygame.image.load('graphics/aseprite/k6.png').convert_alpha()
+			w7 = pygame.image.load('graphics/aseprite/k7.png').convert_alpha()
+			w8 = pygame.image.load('graphics/aseprite/k8.png').convert_alpha()
+			w1_new = pygame.transform.scale(w1,(43,43))
+			w2_new = pygame.transform.scale(w2,(43,43))
+			w3_new = pygame.transform.scale(w3,(43,43))
+			w4_new = pygame.transform.scale(w4,(43,43))
+			w5_new = pygame.transform.scale(w5,(43,43))
+			w6_new = pygame.transform.scale(w6,(43,43))
+			w7_new = pygame.transform.scale(w7,(43,43))
+			w8_new = pygame.transform.scale(w8,(43,43))
+			self.frames = [w1_new,w2_new,w3_new,w4_new,w5_new,w6_new,w7_new,w8_new]
 			y_pos  = 640
 
 		self.animation_index = 0
@@ -298,7 +308,7 @@ game_enter_position = game_enter_zoom.get_rect(center = (510,380))
 
 # Timer 
 obstacle_timer = pygame.USEREVENT + 1
-pygame.time.set_timer(obstacle_timer,425)
+pygame.time.set_timer(obstacle_timer,350)
 
 font_fade = pygame.USEREVENT + 1
 show_text = True
@@ -404,4 +414,4 @@ while True:
 
 
 	pygame.display.update()
-	clock.tick(60)
+	clock.tick(80)
